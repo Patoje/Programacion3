@@ -40,6 +40,47 @@ const TokenBalance: React.FC = () => {
     );
   }
 
+  // Manejar errores de balance
+  if (balanceError) {
+    return (
+      <div className="balance-card">
+        <div className="card-header">
+          <h3>💰 Balance de Tokens</h3>
+          <button 
+            className="refresh-button" 
+            onClick={handleRefreshBalance}
+            title="Reintentar"
+          >
+            🔄
+          </button>
+        </div>
+        <div className="error-state">
+          <span>❌</span>
+          <div>
+            <strong>Error al cargar balance</strong>
+            <br />
+            <small>{balanceError.message}</small>
+            <br />
+            <button 
+              onClick={handleRefreshBalance}
+              style={{ 
+                marginTop: '0.5rem',
+                padding: '0.25rem 0.5rem',
+                fontSize: '0.8rem',
+                background: 'transparent',
+                border: '1px solid currentColor',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              Reintentar
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="balance-card">
       <div className="card-header">

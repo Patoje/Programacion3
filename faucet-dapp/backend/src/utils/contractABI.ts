@@ -1,63 +1,9 @@
-import { defaultWagmiConfig } from '@web3modal/wagmi'
-import { mainnet, hardhat } from 'wagmi/chains'
-import { defineChain } from 'viem'
-
-// Configuración personalizada de Sepolia con el RPC URL específico
-const sepolia = defineChain({
-  id: 11155111,
-  name: 'Sepolia',
-  nativeCurrency: {
-    decimals: 18,
-    name: 'Sepolia Ether',
-    symbol: 'ETH',
-  },
-  rpcUrls: {
-    default: {
-      http: ['https://ethereum-sepolia-rpc.publicnode.com'],
-    },
-  },
-  blockExplorers: {
-    default: {
-      name: 'Etherscan',
-      url: 'https://sepolia.etherscan.io',
-    },
-  },
-  testnet: true,
-})
-
-// 1. Get projectId from https://cloud.walletconnect.com
-const projectId = '2f05a7cde2bb14b478f07e581c0e2130' // Project ID válido para desarrollo
-
-// 2. Create wagmiConfig
-const metadata = {
-  name: 'Faucet DApp',
-  description: 'A simple faucet DApp for claiming ERC20 tokens',
-  url: 'http://localhost:5174', // Corregir URL para que coincida con el puerto actual
-  icons: ['https://avatars.githubusercontent.com/u/37784886']
-}
-
-const chains = [hardhat, sepolia, mainnet] as const
-
-export const config = defaultWagmiConfig({
-  chains,
-  projectId,
-  metadata,
-  enableWalletConnect: true, // Optional - true by default
-  enableInjected: true, // Optional - true by default
-  enableEIP6963: true, // Optional - true by default
-  enableCoinbase: true, // Optional - true by default
-})
-
-// Contract addresses for different networks
-export const CONTRACT_ADDRESSES = {
-  [hardhat.id]: '0x5FbDB2315678afecb367f032d93F642f64180aa3', // Default Hardhat address
-  [sepolia.id]: '0x3e2117c19a921507ead57494bbf29032f33c7412', // FaucetToken contract address on Sepolia
-  [mainnet.id]: '', // Add your mainnet deployment address here (if applicable)
-} as const
-
-// ABI for the FaucetToken contract
+/**
+ * ABI del contrato FaucetToken
+ * Incluye todas las funciones necesarias para interactuar con el smart contract
+ */
 export const FAUCET_TOKEN_ABI = [
-  // ERC20 standard functions
+  // Funciones ERC20 estándar
   {
     inputs: [{ name: 'account', type: 'address' }],
     name: 'balanceOf',
@@ -95,7 +41,28 @@ export const FAUCET_TOKEN_ABI = [
     stateMutability: 'view',
     type: 'function',
   },
-  // Faucet specific functions
+  {
+    inputs: [],
+    name: 'name',
+    outputs: [{ name: '', type: 'string' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'symbol',
+    outputs: [{ name: '', type: 'string' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'decimals',
+    outputs: [{ name: '', type: 'uint8' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  // Funciones específicas del Faucet
   {
     inputs: [],
     name: 'claimTokens',
@@ -124,7 +91,7 @@ export const FAUCET_TOKEN_ABI = [
     stateMutability: 'view',
     type: 'function',
   },
-  // Events
+  // Eventos
   {
     anonymous: false,
     inputs: [
@@ -154,4 +121,4 @@ export const FAUCET_TOKEN_ABI = [
     name: 'Approval',
     type: 'event',
   },
-] as const
+] as const;

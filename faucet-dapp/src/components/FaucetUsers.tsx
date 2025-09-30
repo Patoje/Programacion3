@@ -1,22 +1,30 @@
-import { useFaucetUsers } from '../hooks/useFaucetToken'
-import { useState } from 'react'
+import { useState } from 'react';
+import { useBackendFaucet } from '../hooks/useBackendFaucet';
 
 /**
  * Componente para mostrar la lista de usuarios que han interactuado con el faucet
+ * Ahora obtiene los datos del backend en lugar de interactuar directamente con el contrato
  */
 export function FaucetUsers() {
-  const { data: users, isLoading, error } = useFaucetUsers()
-  const [showAll, setShowAll] = useState(false)
+  const { users, usersLoading, usersError, fetchUsers } = useBackendFaucet();
+  const [showAll, setShowAll] = useState(false);
 
   // Función para truncar direcciones
   const truncateAddress = (address: string) => {
-    return `${address.slice(0, 6)}...${address.slice(-4)}`
-  }
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+
+  /**
+   * Maneja la actualización manual de la lista de usuarios
+   */
+  const handleRefreshUsers = () => {
+    fetchUsers();
+  };
 
   // Mostrar solo los primeros 5 usuarios por defecto
-  const displayUsers = showAll ? users : users?.slice(0, 5) || []
+  const displayUsers = showAll ? users : users?.slice(0, 5) || [];
 
-  if (isLoading) {
+  if (usersLoading) {
     return (
       <div className="users-card">
         <div className="card-header">
@@ -27,20 +35,47 @@ export function FaucetUsers() {
           <p>Cargando usuarios...</p>
         </div>
       </div>
-    )
+    );
   }
 
-  if (error) {
+  if (usersError) {
     return (
       <div className="users-card">
         <div className="card-header">
           <h3>👥 Usuarios del Faucet</h3>
+          <button 
+            className="refresh-button" 
+            onClick={handleRefreshUsers}
+            title="Reintentar"
+          >
+            🔄
+          </button>
         </div>
         <div className="error-state">
-          <p>❌ Error al cargar usuarios</p>
+          <span>❌</span>
+          <div>
+            <strong>Error al cargar usuarios</strong>
+            <br />
+            <small>{usersError}</small>
+            <br />
+            <button 
+              onClick={handleRefreshUsers}
+              style={{ 
+                marginTop: '0.5rem',
+                padding: '0.25rem 0.5rem',
+                fontSize: '0.8rem',
+                background: 'transparent',
+                border: '1px solid currentColor',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              Reintentar
+            </button>
+          </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -85,6 +120,20 @@ export function FaucetUsers() {
           </>
         )}
       </div>
+
+      {/* Información adicional */}
+      <div className="card-footer">
+        <div className="stats-info">
+          <div className="stat-item">
+            <span className="stat-label">Fuente</span>
+            <span className="stat-value">Backend API</span>
+          </div>
+          <div className="stat-item">
+            <span className="stat-label">Total</span>
+            <span className="stat-value">{users?.length || 0}</span>
+          </div>
+        </div>
+      </div>
     </div>
-  )
+  );
 }
