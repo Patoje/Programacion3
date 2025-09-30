@@ -1,5 +1,29 @@
 import { defaultWagmiConfig } from '@web3modal/wagmi'
-import { mainnet, sepolia, hardhat } from 'wagmi/chains'
+import { mainnet, hardhat } from 'wagmi/chains'
+import { defineChain } from 'viem'
+
+// Configuración personalizada de Sepolia con el RPC URL específico
+const sepolia = defineChain({
+  id: 11155111,
+  name: 'Sepolia',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Sepolia Ether',
+    symbol: 'ETH',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://ethereum-sepolia-rpc.publicnode.com'],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'Etherscan',
+      url: 'https://sepolia.etherscan.io',
+    },
+  },
+  testnet: true,
+})
 
 // 1. Get projectId from https://cloud.walletconnect.com
 const projectId = '2f05a7cde2bb14b478f07e581c0e2130' // Project ID válido para desarrollo
@@ -27,7 +51,7 @@ export const config = defaultWagmiConfig({
 // Contract addresses for different networks
 export const CONTRACT_ADDRESSES = {
   [hardhat.id]: '0x5FbDB2315678afecb367f032d93F642f64180aa3', // Default Hardhat address
-  [sepolia.id]: '', // Add your Sepolia deployment address here
+  [sepolia.id]: '0x3e2117c19a921507ead57494bbf29032f33c7412', // FaucetToken contract address on Sepolia
   [mainnet.id]: '', // Add your mainnet deployment address here (if applicable)
 } as const
 
@@ -90,6 +114,13 @@ export const FAUCET_TOKEN_ABI = [
     inputs: [],
     name: 'getFaucetAmount',
     outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'getFaucetUsers',
+    outputs: [{ name: '', type: 'address[]' }],
     stateMutability: 'view',
     type: 'function',
   },
