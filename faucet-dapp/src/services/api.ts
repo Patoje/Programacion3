@@ -109,9 +109,9 @@ class ApiService {
     const url = `${this.baseURL}${endpoint}`;
     
     // Configurar headers por defecto
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...options.headers,
+      ...(options.headers as Record<string, string> || {}),
     };
 
     // Agregar token de autorización si está disponible

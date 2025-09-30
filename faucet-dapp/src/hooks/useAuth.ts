@@ -86,6 +86,9 @@ export function useAuth() {
 
       // 3. Enviar mensaje firmado al backend para autenticación
       console.log('Enviando mensaje firmado al backend...');
+      console.log('Mensaje a enviar:', messageResponse.message);
+      console.log('Firma:', signature);
+      
       const authResponse = await apiService.signIn(messageResponse.message, signature);
 
       // 4. Autenticación exitosa

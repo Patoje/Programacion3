@@ -17,7 +17,7 @@
     "skipLibCheck": true,
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
-    "jsx": "react-jsx",
-    "outDir": "dist"
+    "noEmit": true,
+    "jsx": "react-jsx"
   }
 }

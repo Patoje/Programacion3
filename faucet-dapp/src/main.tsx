@@ -7,6 +7,8 @@ import { createWeb3Modal } from '@web3modal/wagmi/react'
 import App from './App.tsx'
 import { config } from './config/wagmi.ts'
 import './index.css'
+import './styles/darkTheme.css'
+import './styles/components.css'
 
 // 1. Setup queryClient
 const queryClient = new QueryClient()
@@ -17,10 +19,12 @@ createWeb3Modal({
   projectId: '2f05a7cde2bb14b478f07e581c0e2130', // Project ID válido para desarrollo
   enableAnalytics: false, // Deshabilitado para desarrollo
   enableOnramp: false, // Deshabilitado para desarrollo
-  themeMode: 'light',
+  themeMode: 'dark',
   themeVariables: {
     '--w3m-font-family': 'Inter, system-ui, sans-serif',
-    '--w3m-accent': '#2563eb'
+    '--w3m-accent': '#00d4ff',
+    '--w3m-background-color': '#1e1e21',
+    '--w3m-foreground-color': '#2a2a2f'
   }
 })
 

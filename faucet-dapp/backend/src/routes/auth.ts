@@ -66,6 +66,7 @@ router.post('/message', authLimiter, async (req: Request, res: Response): Promis
       nonce: nonce,
       issuedAt: new Date().toISOString(),
       expirationTime: new Date(Date.now() + 10 * 60 * 1000).toISOString(), // 10 minutos
+      resources: []
     });
 
     // Almacenar nonce temporalmente
@@ -111,8 +112,11 @@ router.post('/signin', authLimiter, async (req: Request, res: Response): Promise
     // Parsear el mensaje SIWE
     let siweMessage: SiweMessage;
     try {
+      console.log('Mensaje recibido para parsear:', message);
       siweMessage = new SiweMessage(message);
+      console.log('Mensaje SIWE parseado exitosamente:', siweMessage.address);
     } catch (error) {
+      console.error('Error parseando mensaje SIWE:', error);
       res.status(400).json({
         error: 'Mensaje inválido',
         message: 'El mensaje SIWE proporcionado no tiene un formato válido.'
@@ -142,7 +146,11 @@ router.post('/signin', authLimiter, async (req: Request, res: Response): Promise
 
     // Verificar la firma
     try {
-      const fields = await siweMessage.verify({ signature });
+      const fields = await siweMessage.verify({ 
+        signature,
+        domain: req.get('host') || 'localhost:3001',
+        nonce: storedNonce.nonce
+      });
       
       if (!fields.success) {
         res.status(401).json({

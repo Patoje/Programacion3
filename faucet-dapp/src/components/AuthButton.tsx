@@ -145,18 +145,33 @@ export function AuthButton() {
 
       {/* Información sobre SIWE */}
       {!isAuthenticated && !isLoading && !error && (
-        <div className="auth-info">
-          <h4>🔐 Sign-In with Ethereum</h4>
+        <div className="auth-info industrial-info">
+          <div className="info-header">
+            <span className="info-icon">🔐</span>
+            <h4>Sign-In with Ethereum</h4>
+          </div>
           <p>
-            Para acceder a las funciones del faucet, necesitas autenticarte 
-            firmando un mensaje con tu wallet. Esto es seguro y no cuesta gas.
+            Autenticación descentralizada usando el estándar SIWE. 
+            Firma un mensaje con tu wallet para acceder de forma segura.
           </p>
-          <ul>
-            <li>✅ No requiere transacciones</li>
-            <li>✅ Sin costo de gas</li>
-            <li>✅ Completamente seguro</li>
-            <li>✅ Estándar de la industria</li>
-          </ul>
+          <div className="features-grid">
+            <div className="feature-item">
+              <span className="feature-icon">⚡</span>
+              <span>Sin costo de gas</span>
+            </div>
+            <div className="feature-item">
+              <span className="feature-icon">🛡️</span>
+              <span>Completamente seguro</span>
+            </div>
+            <div className="feature-item">
+              <span className="feature-icon">🏭</span>
+              <span>Estándar industrial</span>
+            </div>
+            <div className="feature-item">
+              <span className="feature-icon">🚀</span>
+              <span>Tecnología avanzada</span>
+            </div>
+          </div>
         </div>
       )}
     </div>

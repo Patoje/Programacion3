@@ -1,26 +1,23 @@
 import React from 'react';
 import { useAccount } from 'wagmi';
-import { useTokenBalance, useTokenSymbol, useTokenName, useTokenDecimals } from '../hooks/useFaucetToken';
+import { useAuth } from '../hooks/useAuth';
+import { useBackendFaucet } from '../hooks/useBackendFaucet';
 
 /**
- * Componente para mostrar el balance de tokens del usuario
- * Incluye información detallada del token y balance actual
+ * Componente para mostrar el balance de tokens del usuario usando el backend
+ * Requiere autenticación SIWE para mostrar información completa
  */
 const TokenBalance: React.FC = () => {
-  const { address, isConnected } = useAccount();
-  
-  // Hooks para obtener información del token
-  const { data: balance, isLoading: isBalanceLoading, error: balanceError, refetch } = useTokenBalance(address);
-  const { data: symbol, isLoading: isSymbolLoading } = useTokenSymbol();
-  const { data: name, isLoading: isNameLoading } = useTokenName();
-  const { data: decimals, isLoading: isDecimalsLoading } = useTokenDecimals();
+  const { isConnected } = useAccount();
+  const { isAuthenticated } = useAuth();
+  const { balance, statusLoading, statusError, fetchFaucetStatus } = useBackendFaucet();
 
   /**
    * Maneja la actualización manual del balance
    */
   const handleRefreshBalance = () => {
-    if (address) {
-      refetch();
+    if (isAuthenticated) {
+      fetchFaucetStatus();
     }
   };
 
@@ -40,8 +37,24 @@ const TokenBalance: React.FC = () => {
     );
   }
 
+  // Si no está autenticado, mostrar mensaje de autenticación
+  if (!isAuthenticated) {
+    return (
+      <div className="balance-card">
+        <div className="card-header">
+          <h3>💰 Balance de Tokens</h3>
+        </div>
+        <div className="empty-state">
+          <div className="empty-icon">🔐</div>
+          <h4>Autenticación Requerida</h4>
+          <p>Debes autenticarte con SIWE para ver tu balance</p>
+        </div>
+      </div>
+    );
+  }
+
   // Manejar errores de balance
-  if (balanceError) {
+  if (statusError) {
     return (
       <div className="balance-card">
         <div className="card-header">
@@ -59,7 +72,7 @@ const TokenBalance: React.FC = () => {
           <div>
             <strong>Error al cargar balance</strong>
             <br />
-            <small>{balanceError.message}</small>
+            <small>{statusError}</small>
             <br />
             <button 
               onClick={handleRefreshBalance}
@@ -88,10 +101,10 @@ const TokenBalance: React.FC = () => {
         <button 
           className="refresh-button" 
           onClick={handleRefreshBalance}
-          disabled={isBalanceLoading}
+          disabled={statusLoading}
           title="Actualizar balance"
         >
-          {isBalanceLoading ? '🔄' : '↻'}
+          {statusLoading ? '🔄' : '↻'}
         </button>
       </div>
 
@@ -100,50 +113,25 @@ const TokenBalance: React.FC = () => {
         <div className="token-header">
           <div className="token-icon">🪙</div>
           <div className="token-details">
-            <h4 className="token-name">
-              {isNameLoading ? (
-                <div className="spinner"></div>
-              ) : (
-                name || 'FaucetToken'
-              )}
-            </h4>
-            <p className="token-symbol">
-              {isSymbolLoading ? (
-                <div className="spinner"></div>
-              ) : (
-                symbol || 'FTKN'
-              )}
-            </p>
+            <h4 className="token-name">FaucetToken (Demo)</h4>
+            <p className="token-symbol">FTKN</p>
           </div>
         </div>
       </div>
 
       {/* Balance principal */}
       <div className="balance-main">
-        {isBalanceLoading ? (
+        {statusLoading ? (
           <div className="loading-state">
             <div className="spinner"></div>
             <p>Cargando balance...</p>
           </div>
-        ) : balanceError ? (
-          <div className="error-state">
-            <span>❌</span>
-            <div>
-              <h4>Error al cargar balance</h4>
-              <p>{balanceError.message}</p>
-              <button onClick={handleRefreshBalance} className="retry-button">
-                Reintentar
-              </button>
-            </div>
-          </div>
         ) : (
           <div className="balance-display">
             <div className="balance-amount">
-              {balance?.formatted || '0'}
+              {balance || '0'}
             </div>
-            <div className="balance-symbol">
-              {symbol || 'FTKN'}
-            </div>
+            <div className="balance-symbol">FTKN</div>
           </div>
         )}
       </div>
@@ -151,48 +139,54 @@ const TokenBalance: React.FC = () => {
       {/* Información detallada */}
       <div className="balance-details">
         <div className="detail-item">
-          <span className="detail-label">Balance Raw:</span>
+          <span className="detail-label">Balance:</span>
           <span className="detail-value">
-            {isBalanceLoading ? (
+            {statusLoading ? (
               <div className="spinner"></div>
             ) : (
-              balance?.value?.toString() || '0'
+              `${balance || '0'} FTKN`
             )}
           </span>
         </div>
         
         <div className="detail-item">
           <span className="detail-label">Decimales:</span>
-          <span className="detail-value">
-            {isDecimalsLoading ? (
-              <div className="spinner"></div>
-            ) : (
-              decimals?.toString() || '18'
-            )}
-          </span>
+          <span className="detail-value">18</span>
         </div>
         
         <div className="detail-item">
-          <span className="detail-label">Dirección:</span>
-          <span className="detail-value address-value">
-            {address ? `${address.slice(0, 8)}...${address.slice(-6)}` : 'No conectada'}
-          </span>
+          <span className="detail-label">Símbolo:</span>
+          <span className="detail-value">FTKN</span>
         </div>
       </div>
 
       {/* Estado del balance */}
       <div className="balance-status">
-        {balance && balance.value > 0n ? (
-          <div className="status-item positive">
-            <span className="status-icon">✅</span>
-            <span>Tienes tokens disponibles</span>
+        <div className={`status-item ${balance && parseFloat(balance) > 0 ? 'positive' : 'neutral'}`}>
+          <span className="status-icon">
+            {balance && parseFloat(balance) > 0 ? '✅' : 'ℹ️'}
+          </span>
+          <span>
+            {balance && parseFloat(balance) > 0 
+              ? 'Tienes tokens en tu wallet' 
+              : 'No tienes tokens aún'
+            }
+          </span>
+        </div>
+      </div>
+
+      {/* Información adicional */}
+      <div className="card-footer">
+        <div className="stats-info">
+          <div className="stat-item">
+            <span className="stat-label">Fuente</span>
+            <span className="stat-value">Backend API</span>
           </div>
-        ) : (
-          <div className="status-item neutral">
-            <span className="status-icon">ℹ️</span>
-            <span>No tienes tokens aún. ¡Reclama algunos del faucet!</span>
+          <div className="stat-item">
+            <span className="stat-label">Red</span>
+            <span className="stat-value">Sepolia (Demo)</span>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
