@@ -9,6 +9,7 @@ import { config } from './config/wagmi.ts'
 import './index.css'
 import './styles/darkTheme.css'
 import './styles/components.css'
+import './styles/authGuide.css'
 
 // 1. Setup queryClient
 const queryClient = new QueryClient()

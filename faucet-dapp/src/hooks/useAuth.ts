@@ -78,9 +78,23 @@ export function useAuth() {
 
       // 2. Firmar el mensaje con la wallet
       console.log('Firmando mensaje SIWE...');
-      const signature = await signMessageAsync({
-        message: messageResponse.message
-      });
+      console.log('Mensaje completo a firmar:', messageResponse.message);
+      
+      let signature: string;
+      try {
+        signature = await signMessageAsync({
+          message: messageResponse.message
+        });
+        console.log('Firma obtenida exitosamente:', signature);
+      } catch (signError: any) {
+        console.error('Error al firmar mensaje:', signError);
+        
+        if (signError.message.includes('User rejected') || signError.code === 4001) {
+          throw new Error('Firma cancelada por el usuario');
+        }
+        
+        throw new Error(`Error al firmar: ${signError.message}`);
+      }
 
       setAuthStatus('authenticating');
 

@@ -5,6 +5,7 @@ import TokenBalance from './components/TokenBalance'
 import TokenTransfer from './components/TokenTransfer'
 import TokenApproval from './components/TokenApproval';
 import { FaucetUsers } from './components/FaucetUsers'
+import AuthGuide from './components/AuthGuide'
 import './App.css'
 
 /**
@@ -37,6 +38,7 @@ function App() {
         <div className="main-content">
           {/* Sección izquierda - Faucet y Balance */}
           <div className="left-section">
+            <AuthGuide />
             <FaucetClaim />
             {isConnected && <TokenBalance />}
           </div>
