@@ -54,8 +54,15 @@ const FaucetClaim: React.FC = () => {
         )}
       </div>
 
-      {/* Mostrar autenticación si no está conectado o autenticado */}
-      {(!isConnected || !isAuthenticated) && (
+      {/* Mostrar autenticación solo si no está conectado o no está autenticado */}
+      {!isConnected && (
+        <div className="auth-required-section">
+          <AuthButton />
+        </div>
+      )}
+      
+      {/* Mostrar autenticación solo si está conectado pero no autenticado */}
+      {isConnected && !isAuthenticated && (
         <div className="auth-required-section">
           <AuthButton />
         </div>
@@ -145,22 +152,6 @@ const FaucetClaim: React.FC = () => {
                 </div>
               </div>
             )}
-          </div>
-
-          {/* Información adicional */}
-          <div className="card-footer">
-            <div className="stats-info">
-              <div className="stat-item">
-                <span className="stat-label">Estado</span>
-                <span className="stat-value">
-                  {hasClaimed ? 'Reclamado' : 'Disponible'}
-                </span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-label">Modo</span>
-                <span className="stat-value">Backend API</span>
-              </div>
-            </div>
           </div>
         </>
       )}

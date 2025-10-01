@@ -69,10 +69,10 @@
 }
 
 .feature-item:hover {
-  background: var(--surface-hover);
-  border-color: var(--border-accent);
+  background: rgba(0, 0, 0, 0.3);
+  border-color: rgba(0, 0, 0, 0.5);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .feature-icon {
@@ -179,8 +179,8 @@
 }
 
 .stat-item:hover {
-  background: var(--surface-hover);
-  border-color: var(--border-accent);
+  background: rgba(0, 0, 0, 0.3);
+  border-color: rgba(0, 0, 0, 0.5);
   transform: translateY(-2px);
 }
 
@@ -217,7 +217,7 @@
   font-size: 4rem;
   margin-bottom: 1.5rem;
   color: var(--text-muted);
-  filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.3));
+  filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.6));
   animation: float 3s ease-in-out infinite;
 }
 
@@ -261,7 +261,7 @@
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.2) 0%, transparent 70%);
   animation: pulse-bg 4s ease-in-out infinite;
 }
 
@@ -277,7 +277,7 @@
   color: var(--text-primary);
   text-transform: uppercase;
   letter-spacing: 1px;
-  text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+  text-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
 }
 
 .features-list {
@@ -301,16 +301,16 @@
 }
 
 .features-list .feature-item:hover {
-  background: var(--surface-hover);
-  border-color: var(--border-accent);
+  background: rgba(0, 0, 0, 0.3);
+  border-color: rgba(0, 0, 0, 0.5);
   transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
 }
 
 .features-list .feature-icon {
   font-size: 1.5rem;
-  color: var(--primary-color);
-  filter: drop-shadow(0 0 10px var(--primary-color));
+  color: rgba(0, 0, 0, 0.8);
+  filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.6));
 }
 
 .features-list .feature-item span:last-child {
@@ -337,11 +337,11 @@
 }
 
 .show-more-button:hover {
-  background: var(--primary-color);
-  color: var(--bg-primary);
-  border-color: var(--primary-color);
+  background: rgba(0, 0, 0, 0.8);
+  color: #ffffff;
+  border-color: rgba(0, 0, 0, 0.8);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-glow);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
 }
 
 /* Mejoras en mensajes de estado */
@@ -368,9 +368,9 @@
 }
 
 .auth-status.info {
-  background: rgba(0, 212, 255, 0.1);
+  background: rgba(0, 0, 0, 0.2);
   border-color: var(--border-accent);
-  color: var(--primary-color);
+  color: var(--text-primary);
 }
 
 .auth-status.success {

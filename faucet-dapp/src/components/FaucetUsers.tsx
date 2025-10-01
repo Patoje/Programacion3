@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { useBackendFaucet } from '../hooks/useBackendFaucet';
 
 /**
- * Componente para mostrar la lista de usuarios que han interactuado con el faucet
- * Ahora obtiene los datos del backend en lugar de interactuar directamente con el contrato
+ * Componente simplificado para mostrar únicamente usuarios que reclamaron del faucet
  */
 export function FaucetUsers() {
   const { users, usersLoading, usersError, fetchUsers } = useBackendFaucet();
@@ -28,11 +27,11 @@ export function FaucetUsers() {
     return (
       <div className="users-card">
         <div className="card-header">
-          <h3>👥 Usuarios del Faucet</h3>
+          <h3>✅ Usuarios que reclamaron</h3>
         </div>
         <div className="loading-state">
           <div className="spinner"></div>
-          <p>Cargando usuarios...</p>
+          <p>Cargando información...</p>
         </div>
       </div>
     );
@@ -42,7 +41,7 @@ export function FaucetUsers() {
     return (
       <div className="users-card">
         <div className="card-header">
-          <h3>👥 Usuarios del Faucet</h3>
+          <h3>✅ Usuarios que reclamaron</h3>
           <button 
             className="refresh-button" 
             onClick={handleRefreshUsers}
@@ -54,24 +53,9 @@ export function FaucetUsers() {
         <div className="error-state">
           <span>❌</span>
           <div>
-            <strong>Error al cargar usuarios</strong>
+            <strong>Error al cargar información</strong>
             <br />
             <small>{usersError}</small>
-            <br />
-            <button 
-              onClick={handleRefreshUsers}
-              style={{ 
-                marginTop: '0.5rem',
-                padding: '0.25rem 0.5rem',
-                fontSize: '0.8rem',
-                background: 'transparent',
-                border: '1px solid currentColor',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              Reintentar
-            </button>
           </div>
         </div>
       </div>
@@ -81,17 +65,17 @@ export function FaucetUsers() {
   return (
     <div className="users-card">
       <div className="card-header">
-        <h3>👥 Usuarios del Faucet</h3>
+        <h3>✅ Usuarios que reclamaron</h3>
         <span className="users-count">
-          {users?.length || 0} usuarios
+          {users?.length || 0} reclamaron
         </span>
       </div>
       
       <div className="users-content">
         {!users || users.length === 0 ? (
           <div className="empty-state">
-            <p>🔍 Aún no hay usuarios registrados</p>
-            <small>Sé el primero en reclamar tokens del faucet</small>
+            <p>🔍 Aún nadie ha reclamado</p>
+            <small>Sé el primero en reclamar tokens</small>
           </div>
         ) : (
           <>
@@ -119,20 +103,6 @@ export function FaucetUsers() {
             )}
           </>
         )}
-      </div>
-
-      {/* Información adicional */}
-      <div className="card-footer">
-        <div className="stats-info">
-          <div className="stat-item">
-            <span className="stat-label">Fuente</span>
-            <span className="stat-value">Backend API</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-label">Total</span>
-            <span className="stat-value">{users?.length || 0}</span>
-          </div>
-        </div>
       </div>
     </div>
   );

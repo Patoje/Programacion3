@@ -148,16 +148,33 @@ export function useBackendFaucet() {
    */
   useEffect(() => {
     if (isAuthenticated && address) {
+      console.log('Usuario autenticado, cargando datos del faucet...');
       fetchFaucetStatus();
       fetchUsers();
     } else {
       // Limpiar datos cuando no está autenticado
+      console.log('Usuario no autenticado, limpiando datos...');
       setFaucetStatus(null);
       setUsers([]);
       resetClaimStatus();
       clearErrors();
     }
   }, [isAuthenticated, address, fetchFaucetStatus, fetchUsers, resetClaimStatus, clearErrors]);
+
+  /**
+   * Efecto adicional para forzar actualización cuando cambia el estado de autenticación
+   */
+  useEffect(() => {
+    if (isAuthenticated && address) {
+      // Pequeño delay para asegurar que la autenticación se haya completado
+      const timer = setTimeout(() => {
+        console.log('Forzando actualización después de autenticación...');
+        fetchFaucetStatus();
+        fetchUsers();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isAuthenticated]);
 
   /**
    * Efecto para limpiar errores después de un tiempo

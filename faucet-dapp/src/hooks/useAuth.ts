@@ -109,6 +109,11 @@ export function useAuth() {
       setIsAuthenticated(true);
       setAuthStatus('authenticated');
       
+      // Cambiar el estado a 'idle' después de 3 segundos para ocultar el mensaje de éxito
+      setTimeout(() => {
+        setAuthStatus('idle');
+      }, 3000);
+      
       console.log('Autenticación exitosa para:', authResponse.address);
       return true;
 
