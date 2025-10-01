@@ -30,9 +30,11 @@ setInterval(() => {
  * POST /auth/message
  * Genera un mensaje SIWE para ser firmado por el cliente
  */
-router.post('/message', authLimiter, async (req: Request, res: Response): Promise<void> => {
+router.post('/message', async (req: Request, res: Response): Promise<void> => {
   try {
     const { address } = req.body;
+
+    console.log('📝 Solicitud de mensaje SIWE para:', address);
 
     // Validar que se proporcione una dirección
     if (!address) {
@@ -55,19 +57,30 @@ router.post('/message', authLimiter, async (req: Request, res: Response): Promis
     // Generar nonce único
     const nonce = generateNonce();
     
-    // Crear mensaje SIWE
+    // Crear mensaje SIWE usando la librería oficial
+    const domain = req.get('host') || 'localhost:3003';
+    const uri = config.FRONTEND_URL || 'http://localhost:5173';
+    const statement = 'Inicia sesion en Faucet DApp con tu wallet Ethereum.';
+    const chainId = 11155111; // Sepolia
+    const issuedAt = new Date();
+    const expirationTime = new Date(Date.now() + 10 * 60 * 1000);
+
+    // Usar la librería oficial SIWE para generar el mensaje
     const siweMessage = new SiweMessage({
-      domain: req.get('host') || 'localhost:3001',
+      domain: domain,
       address: address,
-      statement: 'Inicia sesión en Faucet DApp con tu wallet Ethereum.',
-      uri: req.get('origin') || `http://localhost:${config.PORT}`,
+      statement: statement,
+      uri: uri,
       version: '1',
-      chainId: 11155111, // Sepolia
+      chainId: chainId,
       nonce: nonce,
-      issuedAt: new Date().toISOString(),
-      expirationTime: new Date(Date.now() + 10 * 60 * 1000).toISOString(), // 10 minutos
-      resources: []
+      issuedAt: issuedAt.toISOString(),
+      expirationTime: expirationTime.toISOString()
     });
+
+    const siweMessageText = siweMessage.prepareMessage();
+
+    console.log('📝 Mensaje SIWE generado con librería oficial:', siweMessageText);
 
     // Almacenar nonce temporalmente
     nonceStore.set(address.toLowerCase(), {
@@ -76,15 +89,15 @@ router.post('/message', authLimiter, async (req: Request, res: Response): Promis
     });
 
     const response: MessageResponse = {
-      message: siweMessage.prepareMessage(),
+      message: siweMessageText,
       nonce: nonce
     };
 
-    console.log(`Mensaje SIWE generado para dirección: ${address}`);
+    console.log(`✅ Mensaje SIWE generado para dirección: ${address}`);
     res.json(response);
 
   } catch (error) {
-    console.error('Error generando mensaje SIWE:', error);
+    console.error('❌ Error generando mensaje SIWE:', error);
     res.status(500).json({
       error: 'Error interno del servidor',
       message: 'No se pudo generar el mensaje de autenticación.'
@@ -96,9 +109,13 @@ router.post('/message', authLimiter, async (req: Request, res: Response): Promis
  * POST /auth/signin
  * Verifica la firma SIWE y genera un JWT token
  */
-router.post('/signin', authLimiter, async (req: Request, res: Response): Promise<void> => {
+router.post('/signin', async (req: Request, res: Response): Promise<void> => {
   try {
     const { message, signature }: SiweMessageData = req.body;
+
+    console.log('🔐 Solicitud de signin SIWE');
+    console.log('Mensaje recibido:', message);
+    console.log('Firma recibida:', signature);
 
     // Validar que se proporcionen mensaje y firma
     if (!message || !signature) {
@@ -109,14 +126,54 @@ router.post('/signin', authLimiter, async (req: Request, res: Response): Promise
       return;
     }
 
+    // Análisis detallado del mensaje original
+    console.log('🔍 ANÁLISIS DETALLADO DEL MENSAJE:');
+    console.log('Tipo:', typeof message);
+    console.log('Longitud:', message.length);
+    console.log('Mensaje completo (JSON):', JSON.stringify(message));
+    
+    // Mostrar cada carácter problemático
+    console.log('🔍 Caracteres alrededor de la posición 119:');
+    for (let i = 110; i < 130 && i < message.length; i++) {
+      const char = message.charAt(i);
+      const code = message.charCodeAt(i);
+      console.log(`Pos ${i}: "${char}" (ASCII: ${code})`);
+    }
+    
+    // Mostrar líneas del mensaje
+    const lines = message.split('\n');
+    console.log('📝 LÍNEAS DEL MENSAJE:');
+    lines.forEach((line, index) => {
+      console.log(`Línea ${index + 1}: "${line}" (${line.length} chars)`);
+      // Mostrar códigos ASCII de caracteres especiales
+      for (let i = 0; i < line.length; i++) {
+        const code = line.charCodeAt(i);
+        if (code > 127 || code < 32) {
+          console.log(`  Carácter especial en pos ${i}: ASCII ${code}`);
+        }
+      }
+    });
+
+    // Limpiar el mensaje: eliminar espacios en blanco al final de cada línea
+    const cleanedMessage = message
+      .split('\n')
+      .map((line: string) => line.trimEnd()) // Eliminar espacios al final de cada línea
+      .join('\n')
+      .trim(); // Eliminar espacios al inicio y final del mensaje completo
+
+    console.log('🧹 Mensaje limpio:', cleanedMessage);
+    console.log('📏 Longitud original vs limpia:', message.length, 'vs', cleanedMessage.length);
+
     // Parsear el mensaje SIWE
     let siweMessage: SiweMessage;
     try {
-      console.log('Mensaje recibido para parsear:', message);
-      siweMessage = new SiweMessage(message);
-      console.log('Mensaje SIWE parseado exitosamente:', siweMessage.address);
+      console.log('🔄 Intentando parsear mensaje SIWE limpio...');
+      
+      siweMessage = new SiweMessage(cleanedMessage);
+      console.log('✅ Mensaje SIWE parseado exitosamente:', siweMessage.address);
     } catch (error) {
-      console.error('Error parseando mensaje SIWE:', error);
+      console.error('❌ Error parseando mensaje SIWE:', error);
+      console.error('❌ Mensaje que causó el error:', message);
       res.status(400).json({
         error: 'Mensaje inválido',
         message: 'El mensaje SIWE proporcionado no tiene un formato válido.'

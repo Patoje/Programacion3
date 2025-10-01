@@ -29,20 +29,36 @@ class FaucetServer {
    * Configura middleware global de la aplicación
    */
   private initializeMiddleware(): void {
-    // Configurar CORS
+    // Configurar CORS muy permisivo para desarrollo
     this.app.use(cors({
-      origin: config.FRONTEND_URL,
+      origin: true, // Permitir cualquier origen en desarrollo
       credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Origin', 'Accept', 'X-HTTP-Method-Override'],
+      exposedHeaders: ['Content-Length', 'X-Foo', 'X-Bar'],
+      optionsSuccessStatus: 200,
+      preflightContinue: false
     }));
+
+    // Middleware adicional para CORS en desarrollo
+    this.app.use((req, res, next) => {
+      res.header('Access-Control-Allow-Origin', '*');
+      res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+      res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With, Origin, Accept');
+      
+      if (req.method === 'OPTIONS') {
+        res.sendStatus(200);
+      } else {
+        next();
+      }
+    });
 
     // Middleware para parsear JSON
     this.app.use(express.json({ limit: '10mb' }));
     this.app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-    // Rate limiting general
-    this.app.use(generalLimiter);
+    // Rate limiting deshabilitado en desarrollo
+    console.log('🔧 Modo desarrollo: CORS y Rate limiting configurados para desarrollo');
 
     // Middleware de logging
     this.app.use((req, res, next) => {

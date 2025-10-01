@@ -4,7 +4,7 @@
  */
 
 // Configuración base de la API
-const API_BASE_URL = 'http://localhost:3001';
+const API_BASE_URL = 'http://localhost:3003';
 
 // Tipos para las respuestas de la API
 export interface AuthResponse {
