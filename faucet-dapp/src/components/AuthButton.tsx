@@ -22,9 +22,8 @@ export function AuthButton() {
    * Maneja el click del botón de autenticación
    */
   const handleAuthClick = async () => {
-    if (isAuthenticated) {
-      logout();
-    } else {
+    // Solo permitir autenticación si no está autenticado
+    if (!isAuthenticated) {
       await authenticate();
     }
   };
@@ -34,7 +33,6 @@ export function AuthButton() {
    */
   const getButtonText = (): string => {
     if (!isConnected) return '🔗 Conecta tu Wallet';
-    if (isAuthenticated) return '🔓 Cerrar Sesión';
     
     switch (authStatus) {
       case 'requesting':
@@ -57,7 +55,6 @@ export function AuthButton() {
     const baseClass = 'auth-button';
     
     if (!isConnected) return `${baseClass} disabled`;
-    if (isAuthenticated) return `${baseClass} authenticated`;
     if (isLoading) return `${baseClass} loading`;
     if (authStatus === 'error') return `${baseClass} error`;
     
@@ -78,15 +75,17 @@ export function AuthButton() {
 
   return (
     <div className="auth-section">
-      {/* Botón principal de autenticación */}
-      <button
-        className={getButtonClass()}
-        onClick={handleAuthClick}
-        disabled={isLoading || !isConnected}
-      >
-        {isLoading && <div className="loading-spinner"></div>}
-        {getButtonText()}
-      </button>
+      {/* Solo mostrar el botón si no está autenticado */}
+      {!isAuthenticated && (
+        <button
+          className={getButtonClass()}
+          onClick={handleAuthClick}
+          disabled={isLoading || !isConnected}
+        >
+          {isLoading && <div className="loading-spinner"></div>}
+          {getButtonText()}
+        </button>
+      )}
 
       {/* Mensaje de estado */}
       {authStatus === 'requesting' && (
@@ -99,47 +98,28 @@ export function AuthButton() {
       {authStatus === 'signing' && (
         <div className="auth-status info">
           <span>✍️</span>
-          <p>Por favor, firma el mensaje en tu wallet</p>
+          <p>Firma el mensaje en tu wallet para continuar</p>
         </div>
       )}
 
       {authStatus === 'authenticating' && (
         <div className="auth-status info">
           <span>🔐</span>
-          <p>Verificando firma con el servidor...</p>
+          <p>Verificando autenticación...</p>
         </div>
       )}
 
-      {isAuthenticated && (
+      {authStatus === 'authenticated' && (
         <div className="auth-status success">
           <span>✅</span>
           <p>Autenticado correctamente</p>
         </div>
       )}
 
-      {/* Mensaje de error */}
-      {error && (
+      {authStatus === 'error' && (
         <div className="auth-status error">
           <span>❌</span>
-          <div>
-            <strong>Error de autenticación:</strong>
-            <br />
-            {error}
-            <button 
-              onClick={clearError}
-              style={{ 
-                marginLeft: '1rem', 
-                padding: '0.25rem 0.5rem',
-                fontSize: '0.8rem',
-                background: 'transparent',
-                border: '1px solid currentColor',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              Cerrar
-            </button>
-          </div>
+          <p>Error de autenticación. Inténtalo de nuevo.</p>
         </div>
       )}
 

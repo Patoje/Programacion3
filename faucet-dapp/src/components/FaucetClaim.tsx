@@ -23,6 +23,16 @@ const FaucetClaim: React.FC = () => {
     resetClaimStatus
   } = useBackendFaucet();
 
+  // Debug logs para investigar el problema
+  console.log('FaucetClaim Debug:', {
+    isConnected,
+    isAuthenticated,
+    balance,
+    faucetAmount,
+    hasClaimed,
+    claimStatus
+  });
+
   /**
    * Maneja el proceso de reclamo de tokens
    */
